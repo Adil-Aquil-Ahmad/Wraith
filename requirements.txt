@@ -1,0 +1,5 @@
+flask
+requests
+feedparser
+regex
+bs4

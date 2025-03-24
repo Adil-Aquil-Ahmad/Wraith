@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Portal</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../static/JS/Home.js"></script>
+    <link rel="stylesheet" href="../static/CSS/Style.css">
+</head>
+<body>
+    <h1>Daily News</h1>
+    <header>
+        <nav>
+            <a onclick="fetchNews('all')">World News</a>
+            <a onclick="fetchNews('africa')">Africa</a>
+            <a onclick="fetchNews('americas')">Americas</a>
+            <a onclick="fetchNews('asiapac')">Asia-Pacific</a>
+            <a onclick="fetchNews('europe')">Europe</a>
+            <a onclick="fetchNews('middleeast')">Middle East</a>
+        </nav>
+    </header>
+
+    <input type="text" id="news-search" placeholder="Search news..." onkeyup="filterNews()">
+
+    <img src="../static/Images/shuffle.png" alt="Shuffle" class="shuffle-icon" onclick="shuffleNews()">
+    
+
+    
+
+    <div class="news-container" id="news-container">
+        <p>Select a category to load news.</p>
+    </div>
+
+</body>
+</html>

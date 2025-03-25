@@ -20,7 +20,8 @@ function fetchNews(category) {
                                 '<div class="dot"></div>' +
                             '</div>'}
                             <h3>${article.title}</h3>
-                            <a href="${article.link}" target="_blank">Read more</a>
+                            <div class="eye-icon" onclick="window.open('${article.link}', '_blank')">👁</div>
+                            
                         </div>`;
         });
         document.getElementById("news-container").innerHTML = newsHTML;
@@ -71,3 +72,7 @@ function filterNews() {
         }
     });
 }
+
+window.onload = function() {
+    fetchNews('asiapac');
+};

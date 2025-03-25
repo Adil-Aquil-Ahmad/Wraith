@@ -7,6 +7,13 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../static/JS/Home.js"></script>
     <link rel="stylesheet" href="../static/CSS/Style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
 </head>
 <body>
     <h1>Daily News</h1>
@@ -18,12 +25,20 @@
             <a onclick="fetchNews('asiapac')">Asia-Pacific</a>
             <a onclick="fetchNews('europe')">Europe</a>
             <a onclick="fetchNews('middleeast')">Middle East</a>
+            
         </nav>
+        
     </header>
 
-    <input type="text" id="news-search" placeholder="Search news..." onkeyup="filterNews()">
-
-    <img src="../static/Images/shuffle.png" alt="Shuffle" class="shuffle-icon" onclick="shuffleNews()">
+    <div class="search-container">
+        <input type="text" id="news-search" placeholder="Search news..." onkeyup="filterNews()">
+        <img src="../static/Images/ShuffleStatic.png" 
+             alt="Shuffle" 
+             class="shuffle-icon" 
+             onmouseover="this.src='../static/Images/Shuffle.gif'" 
+             onmouseout="this.src='../static/Images/ShuffleStatic.png'" 
+             onclick="shuffleNews()">
+    </div>
     
 
     

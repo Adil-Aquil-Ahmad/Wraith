@@ -65,5 +65,3 @@ if __name__ == "__main__":
     
     window.show()
     sys.exit(app.exec_())
-
-# first C:\Tor\tor.exe -f C:\Tor\torrc run this on your cmd to run 

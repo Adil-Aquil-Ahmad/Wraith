@@ -3,15 +3,24 @@ Multi-level Encrypted Chatroom
 
 Step - 1
 
+Edit the torrc file in the tor folder:
+
+DataDirectory C:\Users\ADIL\Documents\GitHub\Wraith\tor\
+HiddenServiceDir C:\Users\ADIL\Documents\GitHub\Wraith\tor\hidden_service
+
+update these according to your current folder path 
+
+Step - 2
+
 Run this Command in your CMD "'folder location'\Wraith\tor\tor.exe -f 'folder location'\Wraith\tor\torrc"
 
 for eg: C:\Users\ADIL\Documents\GitHub\Wraith\tor\tor.exe -f C:\Users\ADIL\Documents\GitHub\Wraith\tor\torrc
 
-Step - 2
+Step - 3
 
 Run python app.py in your terminal
 
-Step - 3
+Step - 4
 
 Run python browser.py in another terminal
 

@@ -23,7 +23,7 @@ class TorBrowser(QMainWindow):
         self.tabs.tabCloseRequested.connect(self.close_tab)
         
         self.new_tab_button = QPushButton("+")
-        self.new_tab_button.setFixedSize(20, 20)
+        self.new_tab_button.setFixedSize(30, 30)
         self.new_tab_button.clicked.connect(self.add_new_tab)
         
         self.tabs.setCornerWidget(self.new_tab_button)

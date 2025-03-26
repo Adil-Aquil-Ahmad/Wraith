@@ -9,25 +9,112 @@
     <link rel="stylesheet" href="../static/CSS/Style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            transition: background 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            background-color: #121212;
+            color: white;
+        }
+        header {
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            position: relative;
+        }
+        .dark-mode header {
+            background: #333;
+        }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: auto;
+        }
+        nav {
+            display: flex;
+            gap: 15px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+        }
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+        }
+        .search-container {
+            text-align: center;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .news-container {
+            max-width: 95%;
+            margin: 20px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .dark-mode .news-container {
+            background: #1e1e1e;
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        @media (max-width: 768px) {
+            nav {
+                display: none;
+                flex-direction: column;
+                background: #007bff;
+                position: absolute;
+                width: 100%;
+                left: 0;
+                top: 60px;
+                padding: 10px;
+            }
+            nav.active {
+                display: flex;
+            }
+            .menu-toggle {
+                display: block;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Daily News</h1>
     <header>
-        <nav>
-            <a onclick="fetchNews('all')">World News</a>
-            <a onclick="fetchNews('africa')">Africa</a>
-            <a onclick="fetchNews('americas')">Americas</a>
-            <a onclick="fetchNews('asiapac')">Asia-Pacific</a>
-            <a onclick="fetchNews('europe')">Europe</a>
-            <a onclick="fetchNews('middleeast')">Middle East</a>
-            
-        </nav>
-        
+        <div class="nav-container">
+            <div class="logo">Daily News</div>
+            <button class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+            <nav id="nav-menu">
+                <a onclick="fetchNews('all')">World</a>
+                <a onclick="fetchNews('africa')">Africa</a>
+                <a onclick="fetchNews('americas')">Americas</a>
+                <a onclick="fetchNews('asiapac')">Asia-Pacific</a>
+                <a onclick="fetchNews('europe')">Europe</a>
+                <a onclick="fetchNews('middleeast')">Middle East</a>
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </nav>
+        </div>
     </header>
 
     <div class="search-container">
@@ -39,13 +126,19 @@
              onmouseout="this.src='../static/Images/ShuffleStatic.png'" 
              onclick="shuffleNews()">
     </div>
-    
-
-    
 
     <div class="news-container" id="news-container">
         <p>Select a category to load news.</p>
     </div>
 
+    <script>
+        function toggleMenu() {
+            document.getElementById("nav-menu").classList.toggle("active");
+        }
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            document.querySelector(".news-container").classList.toggle("dark-mode");
+        }
+    </script>
 </body>
 </html>

@@ -94,3 +94,10 @@ function toggleDarkMode() {
         icon.classList.add("fa-sun");
     }
 }
+
+$('.tdnn').click(function () {
+    $("body").toggleClass('light');
+    $(".moon").toggleClass('sun');
+    $(".tdnn").toggleClass('day');
+  });
+  

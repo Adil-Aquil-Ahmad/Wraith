@@ -7,6 +7,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../static/JS/Home.js"></script>
     <link rel="stylesheet" href="../static/CSS/Style.css">
+    <link rel="stylesheet" href="../static/CSS/Lightmode.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;600&display=swap" rel="stylesheet">
@@ -25,10 +26,12 @@
                 <a onclick="fetchNews('asiapac')">Asia-Pacific</a>
                 <a onclick="fetchNews('europe')">Europe</a>
                 <a onclick="fetchNews('middleeast')">Middle East</a>
-                <button class="dark-mode-toggle" onclick="toggleDarkMode()">
-                    <i id="mode-icon" class="fas fa-sun"></i>
-                </button>
+                
             </nav>
+                <div class="tdnn" onclick="toggleDarkMode()">
+                    <div class="moon">
+                   </div>
+               </div>
         </div>
     </header>
 
@@ -42,11 +45,19 @@
              onclick="shuffleNews()">
     </div>
 
+ 
+ <!--See version 2.0 withoug jQuery-->
+ <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+
     <div class="news-container" id="news-container">
         <p>Select a category to load news.</p>
     </div>
 
     <script>
+        $('.tdnn').click(function () {
+        $(".moon").toggleClass('sun');
+        $(".tdnn").toggleClass('day');
+        });
 
     </script>
 </body>

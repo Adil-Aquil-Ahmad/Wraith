@@ -76,3 +76,21 @@ function filterNews() {
 window.onload = function() {
     fetchNews('asiapac');
 };
+
+function toggleMenu() {
+    document.getElementById("nav-menu").classList.toggle("active");
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle("light-mode");
+    document.querySelector(".news-container").classList.toggle("light-mode");
+
+    let icon = document.getElementById("mode-icon");
+    if (document.body.classList.contains("light-mode")) {
+        icon.classList.remove("fa-sun");
+        icon.classList.add("fa-moon");
+    } else {
+        icon.classList.remove("fa-moon");
+        icon.classList.add("fa-sun");
+    }
+}

@@ -9,25 +9,27 @@
     <link rel="stylesheet" href="../static/CSS/Style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 </head>
-<body>
-    <h1>Daily News</h1>
+<body class="dark-mode">
     <header>
-        <nav>
-            <a onclick="fetchNews('all')">World News</a>
-            <a onclick="fetchNews('africa')">Africa</a>
-            <a onclick="fetchNews('americas')">Americas</a>
-            <a onclick="fetchNews('asiapac')">Asia-Pacific</a>
-            <a onclick="fetchNews('europe')">Europe</a>
-            <a onclick="fetchNews('middleeast')">Middle East</a>
-            
-        </nav>
-        
+        <div class="nav-container">
+            <div class="logo">Daily News</div>
+            <button class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+            <nav id="nav-menu">
+                <a onclick="fetchNews('all')">World</a>
+                <a onclick="fetchNews('africa')">Africa</a>
+                <a onclick="fetchNews('americas')">Americas</a>
+                <a onclick="fetchNews('asiapac')">Asia-Pacific</a>
+                <a onclick="fetchNews('europe')">Europe</a>
+                <a onclick="fetchNews('middleeast')">Middle East</a>
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()">
+                    <i id="mode-icon" class="fas fa-sun"></i>
+                </button>
+            </nav>
+        </div>
     </header>
 
     <div class="search-container">
@@ -39,13 +41,13 @@
              onmouseout="this.src='../static/Images/ShuffleStatic.png'" 
              onclick="shuffleNews()">
     </div>
-    
-
-    
 
     <div class="news-container" id="news-container">
         <p>Select a category to load news.</p>
     </div>
 
+    <script>
+
+    </script>
 </body>
 </html>

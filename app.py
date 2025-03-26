@@ -2,7 +2,7 @@ from flask import Flask, jsonify, render_template
 from newsbot import *
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key"
+app.secret_key = "AdilAAhmad"
 
 @app.route('/')
 def home():

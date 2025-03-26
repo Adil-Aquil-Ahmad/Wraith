@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatroom</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <style>
+    .message-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .decrypt-btn {
+      margin-left: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      background: none;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>Chatroom: <span id="room_code"></span></h2>
+  <input type="text" id="username" placeholder="Enter your username">
+  <br><br>
+  <input type="text" id="message" placeholder="Enter message">
+  <button onclick="sendMessage()">Send</button>
+
+  <h3>Messages</h3>
+  <div id="messages"></div>
+
+  <script>
+    var socket = io.connect("http://127.0.0.1:5000");
+    var room_code = "{{ room_code }}";
+    document.getElementById("room_code").innerText = room_code;
+
+    let encryptionKeyBase64 = null;
+
+    fetch(`/get_key/${room_code}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.key) {
+          encryptionKeyBase64 = data.key;
+          console.log("Received encryption key:", encryptionKeyBase64);
+        }
+      })
+      .catch(error => console.error("Error fetching key:", error));
+
+    socket.on("connect", function() {
+      console.log("Connected to server.");
+      socket.emit("join", { room_code: room_code, username: "Anonymous" });
+    });
+
+    socket.on("message", function(data) {
+      console.log("New message received:", data);
+      var messagesDiv = document.getElementById("messages");
+      var msg_id = data.msg_id || ("msg_" + Math.random().toString(36).substr(2, 9));
+      var container = document.createElement("div");
+      container.className = "message-container";
+      container.id = msg_id;
+      var p = document.createElement("p");
+      p.innerHTML = "<b>" + data.username + ":</b> <span class='encrypted-text'>" + data.message + "</span>";
+      container.appendChild(p);
+      var btn = document.createElement("button");
+      btn.className = "decrypt-btn";
+      btn.textContent = "🔍";
+      btn.addEventListener("click", function() {
+        triggerDecryption(msg_id, data.message);
+      });
+      container.appendChild(btn);
+      messagesDiv.appendChild(container);
+    });
+
+    socket.on("delete_message", function(data) {
+      let elem = document.getElementById(data.msg_id);
+      if (elem) {
+        elem.remove();
+      }
+    });
+
+    function sendMessage() {
+      var username = document.getElementById("username").value || "Anonymous";
+      var message = document.getElementById("message").value;
+      if (message) {
+        var msg_id = "msg_" + Math.random().toString(36).substr(2, 9);
+        socket.emit("message", { room_code: room_code, username: username, message: message, msg_id: msg_id });
+        document.getElementById("message").value = "";
+      }
+    }
+
+    async function triggerDecryption(msg_id, encryptedText) {
+      let decrypted = await decryptMessage(encryptedText);
+      if (decrypted !== null) {
+        console.log("Decrypted message:", decrypted);
+
+        let messageElem = document.querySelector(`#${msg_id} .encrypted-text`);
+        if (messageElem) {
+          messageElem.textContent = decrypted;
+        }
+
+        setTimeout(() => {
+          socket.emit("delete_message", { room_code: room_code, msg_id: msg_id });
+        }, 10000);
+      }
+    }
+
+    async function decryptMessage(encryptedMessage) {
+      if (!encryptionKeyBase64) {
+        alert("Encryption key not available.");
+        return null;
+      }
+      try {
+        let rawStr = atob(encryptedMessage);
+        let rawBytes = Uint8Array.from(rawStr, c => c.charCodeAt(0));
+        let iv = rawBytes.slice(0, 16);
+        let ciphertext = rawBytes.slice(16);
+        let keyBytes = Uint8Array.from(atob(encryptionKeyBase64), c => c.charCodeAt(0));
+        let cryptoKey = await window.crypto.subtle.importKey(
+          "raw",
+          keyBytes,
+          { name: "AES-CBC" },
+          false,
+          ["decrypt"]
+        );
+        let decryptedBuffer = await window.crypto.subtle.decrypt(
+          { name: "AES-CBC", iv: iv },
+          cryptoKey,
+          ciphertext
+        );
+        let decryptedText = new TextDecoder().decode(decryptedBuffer);
+        decryptedText = decryptedText.replace(/[\x00-\x1F]+$/, '');
+        return decryptedText;
+      } catch (err) {
+        console.error("Decryption failed:", err);
+        alert("Decryption failed. See console for details.");
+        return null;
+      }
+    }
+  </script>
+</body>
+</html>
+ 

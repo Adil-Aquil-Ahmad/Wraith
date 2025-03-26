@@ -25,4 +25,3 @@ Step - 4
 Run python browser.py in another terminal
 
 The app should run Successfully if you followed all the steps
-

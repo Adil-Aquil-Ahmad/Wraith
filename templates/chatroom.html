@@ -3,35 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chatroom</title>
+  <title>Wraith Chatroom</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-  <style>
-    .message-container {
-      display: flex;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    .decrypt-btn {
-      margin-left: 10px;
-      cursor: pointer;
-      font-size: 16px;
-      background: none;
-      border: none;
-    }
-  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/1.3.1/forge.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../static/CSS/Chatroom.css">
 </head>
 <body>
-  <h2>Chatroom: <span id="room_code"></span></h2>
-  <input type="text" id="username" placeholder="Enter your username">
-  <br><br>
-  <input type="text" id="message" placeholder="Enter message">
-  <button onclick="sendMessage()">Send</button>
-
-  <h3>Messages</h3>
-  <div id="messages"></div>
-
+  <div class="fog-container">
+    <video class="fog-video" src="../static/Images/mist3.mp4" autoplay loop muted></video>
+  </div>
+  <h2>Wraith Chatroom: <span id="room_code"></span></h2>
+  <div class="chat-container">
+    <div class="message-box" id="messages"></div>
+    <input type="text" id="username" placeholder="Enter your username">
+    <br>
+    <input type="text" id="message" placeholder="Enter message">
+    <button onclick="sendMessage()">Send</button>
+  </div>
   <script>
-    var socket = io.connect("http://127.0.0.1:5000");
+    var socket = io.connect("http://127.0.0.1:8000");
     var room_code = "{{ room_code }}";
     document.getElementById("room_code").innerText = room_code;
 
@@ -53,22 +44,24 @@
     });
 
     socket.on("message", function(data) {
-      console.log("New message received:", data);
       var messagesDiv = document.getElementById("messages");
-      var msg_id = data.msg_id || ("msg_" + Math.random().toString(36).substr(2, 9));
       var container = document.createElement("div");
       container.className = "message-container";
-      container.id = msg_id;
+      container.id = data.msg_id;
       var p = document.createElement("p");
       p.innerHTML = "<b>" + data.username + ":</b> <span class='encrypted-text'>" + data.message + "</span>";
       container.appendChild(p);
-      var btn = document.createElement("button");
-      btn.className = "decrypt-btn";
-      btn.textContent = "🔍";
-      btn.addEventListener("click", function() {
-        triggerDecryption(msg_id, data.message);
-      });
-      container.appendChild(btn);
+      
+      if (data.username.toLowerCase() !== "system") {
+        var btn = document.createElement("button");
+        btn.className = "decrypt-btn";
+        btn.textContent = "🔍";
+        btn.addEventListener("click", function() {
+          triggerDecryption(data.msg_id, data.message);
+        });
+        container.appendChild(btn);
+      }
+      
       messagesDiv.appendChild(container);
     });
 
@@ -110,34 +103,28 @@
         alert("Encryption key not available.");
         return null;
       }
+
       try {
-        let rawStr = atob(encryptedMessage);
-        let rawBytes = Uint8Array.from(rawStr, c => c.charCodeAt(0));
-        let iv = rawBytes.slice(0, 16);
-        let ciphertext = rawBytes.slice(16);
-        let keyBytes = Uint8Array.from(atob(encryptionKeyBase64), c => c.charCodeAt(0));
-        let cryptoKey = await window.crypto.subtle.importKey(
-          "raw",
-          keyBytes,
-          { name: "AES-CBC" },
-          false,
-          ["decrypt"]
-        );
-        let decryptedBuffer = await window.crypto.subtle.decrypt(
-          { name: "AES-CBC", iv: iv },
-          cryptoKey,
-          ciphertext
-        );
-        let decryptedText = new TextDecoder().decode(decryptedBuffer);
-        decryptedText = decryptedText.replace(/[\x00-\x1F]+$/, '');
-        return decryptedText;
+        let keyBytes = forge.util.decode64(encryptionKeyBase64);
+        let iv = forge.util.decode64(encryptedMessage).slice(0, 16);
+        let ciphertext = forge.util.decode64(encryptedMessage).slice(16);
+
+        let decipher = forge.cipher.createDecipher("AES-CBC", keyBytes);
+        decipher.start({ iv: forge.util.createBuffer(iv) });
+        decipher.update(forge.util.createBuffer(ciphertext));
+        let success = decipher.finish();
+
+        if (!success) {
+          throw new Error("Decryption failed.");
+        }
+
+        return decipher.output.toString("utf8").replace(/\x00+$/, "");
       } catch (err) {
         console.error("Decryption failed:", err);
-        alert("Decryption failed. See console for details.");
+        alert("Decryption failed. Check console for details.");
         return null;
       }
     }
   </script>
 </body>
 </html>
- 

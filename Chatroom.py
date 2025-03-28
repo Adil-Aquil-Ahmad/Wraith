@@ -90,4 +90,4 @@ def get_key(room_code):
     return jsonify({"key": key_b64})
 
 if __name__ == "__main__":
-    socketio.run(app, host="127.0.0.1", port=5000, debug=True)
+    socketio.run(app, host="127.0.0.1", port=8000, debug=True)

@@ -1,5 +1,8 @@
-flask
-requests
 feedparser
-regex
-bs4
+requests
+beautifulsoup4
+flask
+flask-socketio
+pycryptodome
+PyQt5
+PyQtWebEngine

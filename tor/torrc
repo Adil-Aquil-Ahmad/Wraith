@@ -1,5 +1,0 @@
-SocksPort 9050
-ControlPort 9051
-DataDirectory C:\Users\ADIL\Documents\GitHub\Wraith\tor\Data
-HiddenServiceDir C:\Users\ADIL\Documents\GitHub\Wraith\tor\hidden_service
-HiddenServicePort 80 127.0.0.1:8000

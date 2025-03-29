@@ -3,6 +3,8 @@ Multi-level Encrypted Chatroom
 
 Step - 1
 
+Unzip the tor folder in the current folder
+
 Edit the torrc file in the tor folder:
 
 DataDirectory C:\Users\ADIL\Documents\GitHub\Wraith\tor\

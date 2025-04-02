@@ -1,16 +1,22 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QPushButton, QLineEdit, QWidget, QHBoxLayout, QTabWidget
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
-from PyQt5.QtCore import QUrl
-from PyQt5.QtWebEngineWidgets import QWebEngineSettings
-from PyQt5.QtNetwork import QNetworkProxy
+import os
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QPushButton, QLineEdit, QWidget, QHBoxLayout, QTabWidget
+from PyQt6.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile, QWebEngineSettings
+from PyQt6.QtCore import QUrl
+from PyQt6.QtNetwork import QNetworkProxy
 
 class CustomWebEnginePage(QWebEnginePage):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
     def createWindow(self, _type):
         new_browser = QWebEngineView()
         new_browser.setPage(CustomWebEnginePage(new_browser))
         parent_window.add_new_tab_widget(new_browser, "New Tab")
         return new_browser.page()
+
 
 class TorBrowser(QMainWindow):
     def __init__(self):
@@ -37,10 +43,10 @@ class TorBrowser(QMainWindow):
         
         self.configure_tor_proxy()
         self.add_new_tab("http://wraithint62dae2hu3xuwdj7etntsmuiw4fml37tvrqgxhzykqpf3did.onion", "Home")
-    
+
     def configure_tor_proxy(self):
         proxy = QNetworkProxy()
-        proxy.setType(QNetworkProxy.Socks5Proxy)
+        proxy.setType(QNetworkProxy.ProxyType.Socks5Proxy)
         proxy.setHostName("127.0.0.1")
         proxy.setPort(9050)
         QNetworkProxy.setApplicationProxy(proxy)
@@ -106,6 +112,6 @@ class TorBrowser(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = TorBrowser()
-    parent_window = window  # Assign global reference for opening new tabs
+    parent_window = window
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

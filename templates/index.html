@@ -1,24 +1,484 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wraith Chatroom</title>
-    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../static/CSS/Home.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wraith Chatroom</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Dark theme (default) */
+      --bg-primary: #0a0b1a;
+      --bg-secondary: rgba(13, 15, 30, 0.85);
+      --text-primary: #e0e0ff;
+      --text-secondary: #9a9cb8;
+      --accent-primary: #17e6c1;
+      --accent-secondary: #0984bc;
+      --border-color: rgba(23, 230, 193, 0.2);
+      --shadow-color: rgba(23, 230, 193, 0.3);
+      --input-bg: rgba(10, 11, 26, 0.7);
+      --fog-opacity: 0.4;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f0f4fa;
+      --bg-secondary: rgba(255, 255, 255, 0.85);
+      --text-primary: #121430;
+      --text-secondary: #424260;
+      --accent-primary: #0984bc;
+      --accent-secondary: #17e6c1;
+      --border-color: rgba(9, 132, 188, 0.2);
+      --shadow-color: rgba(9, 132, 188, 0.2);
+      --input-bg: rgba(240, 244, 250, 0.7);
+      --fog-opacity: 0.15;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+    
+    .fog-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+    }
+    
+    .fog-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: var(--fog-opacity);
+      transition: opacity 0.5s ease;
+    }
+    
+    .content-container {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 460px;
+      width: 90%;
+      background-color: var(--bg-secondary);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 0 20px var(--shadow-color);
+      border: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+    }
+    
+    h2 {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-align: center;
+      color: var(--accent-primary);
+      text-shadow: 0 0 15px var(--shadow-color);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    
+    .wraith-logo {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 8px var(--shadow-color));
+      transition: filter 0.3s ease;
+    }
+    
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 20px;
+    }
+    
+    form {
+      width: 100%;
+    }
+    
+    .room-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+    }
+    
+    input {
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--input-bg);
+      color: var(--text-primary);
+      font-family: 'Space Mono', monospace;
+      font-size: 1rem;
+      width: 100%;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(23, 230, 193, 0.1) inset;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 15px var(--shadow-color);
+    }
+    
+    input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.6;
+    }
+    
+    button {
+      padding: 12px 25px;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+      color: var(--bg-primary);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 15px var(--shadow-color);
+    }
+    
+    button:active {
+      transform: translateY(1px);
+    }
+    
+    .separator {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+    }
+    
+    .separator::before,
+    .separator::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .separator span {
+      margin: 0 15px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    .circuit-lines {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      opacity: 0.1;
+      z-index: -1;
+      background-image: 
+        linear-gradient(to right, var(--accent-primary) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--accent-primary) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      z-index: 100;
+      box-shadow: 0 0 10px var(--shadow-color);
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: rotate(30deg);
+      box-shadow: 0 0 15px var(--accent-primary);
+    }
+
+    .theme-toggle svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--accent-primary);
+      transition: all 0.3s ease;
+    }
+
+    .glowing-effect {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: linear-gradient(120deg, 
+        transparent 0%, 
+        transparent 40%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        transparent 60%, 
+        transparent 100%);
+      background-size: 200% 100%;
+      animation: glowing 2s infinite linear;
+    }
+    
+    @keyframes glowing {
+      0% {
+        background-position: -100% 0;
+      }
+      100% {
+        background-position: 100% 0;
+      }
+    }
+    
+    .tech-decor {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .decor-circle {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid var(--accent-primary);
+      opacity: 0.2;
+    }
+
+    .decor-line {
+      position: absolute;
+      height: 1px;
+      background: var(--accent-primary);
+      opacity: 0.2;
+      transform-origin: left center;
+    }
+
+    .status-indicator {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--accent-primary);
+      box-shadow: 0 0 10px var(--accent-primary);
+      animation: blink 2s infinite alternate;
+    }
+
+    @keyframes blink {
+      0% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    .tech-status {
+      position: absolute;
+      top: 20px;
+      left: 40px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent-primary);
+    }
+
+    .header-decoration {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .header-line {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+    }
+
+    .header-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--accent-primary);
+    }
+  </style>
 </head>
 <body>
-    <div class="fog-container">
-        <video class="fog-video" src="../static/Images/mist.mp4" autoplay loop muted></video>
+  <div class="fog-container">
+    <video class="fog-video" src="../static/Images/mist.mp4" autoplay loop muted></video>
+  </div>
+  
+  <div class="theme-toggle" id="themeToggle">
+    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    <svg id="sunIcon" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+  </div>
+
+  <div class="status-indicator"></div>
+  <div class="tech-status">SYSTEM ONLINE</div>
+  
+  <div class="content-container">
+    <div class="circuit-lines"></div>
+    <div class="tech-decor" id="techDecor"></div>
+    
+    <svg class="wraith-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="var(--accent-primary)" />
+          <stop offset="100%" stop-color="var(--accent-secondary)" />
+        </linearGradient>
+      </defs>
+      <!-- Tech-style hexagon logo -->
+      <polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="none" stroke="url(#logoGradient)" stroke-width="2" />
+      <circle cx="50" cy="50" r="20" fill="none" stroke="url(#logoGradient)" stroke-width="1.5" />
+      <circle cx="50" cy="50" r="10" fill="none" stroke="url(#logoGradient)" stroke-width="1" />
+      <line x1="15" y1="30" x2="85" y2="70" stroke="url(#logoGradient)" stroke-width="1" />
+      <line x1="15" y1="70" x2="85" y2="30" stroke="url(#logoGradient)" stroke-width="1" />
+    </svg>
+    
+    <div class="header-decoration">
+      <div class="header-line"></div>
+      <div class="header-dot"></div>
+      <div class="header-dot"></div>
+      <div class="header-line"></div>
     </div>
-    <h2>Welcome to Wraith Chat</h2>
-    <form method="POST">
-        <button type="submit" name="action" value="create">Create Chatroom</button>
-    </form>
-    <br>
-    <form method="POST">
-        <input type="text" name="room_code" placeholder="Enter 6-digit code">
-        <button type="submit" name="action" value="join">Join Chatroom</button>
-    </form>
+    
+    <h2>Wraith Chat</h2>
+    
+    <div class="options-container">
+      <form method="POST" class="room-form">
+        <button type="submit" name="action" value="create">
+          <div class="glowing-effect"></div>
+          Create Chatroom
+        </button>
+      </form>
+      
+      <div class="separator">
+        <span>// OR //</span>
+      </div>
+      
+      <form method="POST" class="room-form">
+        <input type="text" name="room_code" placeholder="ENTER 6-DIGIT CODE" maxlength="6" pattern="[0-9]{6}" required>
+        <button type="submit" name="action" value="join">
+          <div class="glowing-effect"></div>
+          Join Chatroom
+        </button>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Theme toggle functionality
+      const themeToggle = document.getElementById('themeToggle');
+      const moonIcon = document.getElementById('moonIcon');
+      const sunIcon = document.getElementById('sunIcon');
+      const htmlElement = document.documentElement;
+      
+      // Check for saved theme preference or use default
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      htmlElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+      
+      themeToggle.addEventListener('click', function() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+      });
+      
+      function updateThemeIcon(theme) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        } else {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        }
+      }
+      
+      // Create tech decorations
+      const techDecor = document.getElementById('techDecor');
+      
+      // Create circles
+      for (let i = 0; i < 5; i++) {
+        const circle = document.createElement('div');
+        circle.classList.add('decor-circle');
+        
+        const size = Math.floor(Math.random() * 100) + 50;
+        circle.style.width = `${size}px`;
+        circle.style.height = `${size}px`;
+        
+        circle.style.top = `${Math.floor(Math.random() * 100)}%`;
+        circle.style.left = `${Math.floor(Math.random() * 100)}%`;
+        
+        techDecor.appendChild(circle);
+      }
+      
+      // Create lines
+      for (let i = 0; i < 8; i++) {
+        const line = document.createElement('div');
+        line.classList.add('decor-line');
+        
+        const length = Math.floor(Math.random() * 100) + 50;
+        line.style.width = `${length}px`;
+        
+        line.style.top = `${Math.floor(Math.random() * 100)}%`;
+        line.style.left = `${Math.floor(Math.random() * 100)}%`;
+        
+        const angle = Math.floor(Math.random() * 360);
+        line.style.transform = `rotate(${angle}deg)`;
+        
+        techDecor.appendChild(line);
+      }
+      
+      // Make input field glow when focused
+      const input = document.querySelector('input');
+      input.addEventListener('focus', function() {
+        this.style.boxShadow = '0 0 15px var(--accent-primary)';
+      });
+      input.addEventListener('blur', function() {
+        this.style.boxShadow = '0 0 10px rgba(23, 230, 193, 0.1) inset';
+      });
+    });
+  </script>
 </body>
 </html>

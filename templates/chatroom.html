@@ -6,28 +6,452 @@
   <title>Wraith Chatroom</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/1.3.1/forge.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../static/CSS/Chatroom.css">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Dark theme (default) */
+      --bg-primary: #0a0b1a;
+      --bg-secondary: rgba(13, 15, 30, 0.85);
+      --text-primary: #e0e0ff;
+      --text-secondary: #9a9cb8;
+      --accent-primary: #17e6c1;
+      --accent-secondary: #0984bc;
+      --border-color: rgba(23, 230, 193, 0.2);
+      --shadow-color: rgba(23, 230, 193, 0.3);
+      --input-bg: rgba(10, 11, 26, 0.7);
+      --fog-opacity: 0.4;
+      --message-bg: rgba(16, 18, 35, 0.7);
+      --message-self-bg: rgba(23, 230, 193, 0.1);
+      --system-message-bg: rgba(9, 132, 188, 0.1);
+      --scrollbar-thumb: rgba(23, 230, 193, 0.3);
+      --scrollbar-track: rgba(13, 15, 30, 0.3);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f0f4fa;
+      --bg-secondary: rgba(255, 255, 255, 0.85);
+      --text-primary: #121430;
+      --text-secondary: #424260;
+      --accent-primary: #0984bc;
+      --accent-secondary: #17e6c1;
+      --border-color: rgba(9, 132, 188, 0.2);
+      --shadow-color: rgba(9, 132, 188, 0.2);
+      --input-bg: rgba(240, 244, 250, 0.7);
+      --fog-opacity: 0.15;
+      --message-bg: rgba(240, 244, 250, 0.7);
+      --message-self-bg: rgba(9, 132, 188, 0.1);
+      --system-message-bg: rgba(23, 230, 193, 0.1);
+      --scrollbar-thumb: rgba(9, 132, 188, 0.3);
+      --scrollbar-track: rgba(240, 244, 250, 0.3);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      transition: all 0.3s ease;
+      padding: 0 20px;
+    }
+    
+    .fog-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+    }
+    
+    .fog-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: var(--fog-opacity);
+      transition: opacity 0.5s ease;
+    }
+    
+    .circuit-lines {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      opacity: 0.1;
+      z-index: -1;
+      background-image: 
+        linear-gradient(to right, var(--accent-primary) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--accent-primary) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      z-index: 100;
+      box-shadow: 0 0 10px var(--shadow-color);
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: rotate(30deg);
+      box-shadow: 0 0 15px var(--accent-primary);
+    }
+
+    .theme-toggle svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--accent-primary);
+      transition: all 0.3s ease;
+    }
+    
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin: 20px 0;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .header-decoration {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 80%;
+      max-width: 500px;
+      margin-bottom: 15px;
+    }
+
+    .header-line {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+    }
+
+    .header-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--accent-primary);
+    }
+    
+    h2 {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 2.2rem;
+      text-align: center;
+      color: var(--accent-primary);
+      text-shadow: 0 0 15px var(--shadow-color);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    
+    #room_code {
+      font-family: 'Space Mono', monospace;
+      color: var(--text-primary);
+      background-color: var(--message-bg);
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      border: 1px solid var(--border-color);
+    }
+    
+    .chat-container {
+      width: 100%;
+      max-width: 800px;
+      height: calc(100vh - 160px);
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-secondary);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 0 20px var(--shadow-color);
+      border: 1px solid var(--border-color);
+      position: relative;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+    
+    .message-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    }
+    
+    .message-box::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .message-box::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+      border-radius: 4px;
+    }
+    
+    .message-box::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 4px;
+    }
+    
+    .message-container {
+      margin-bottom: 12px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      background-color: var(--message-bg);
+      border-left: 3px solid var(--accent-primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .message-container.system-message {
+      background-color: var(--system-message-bg);
+      border-left: 3px solid var(--accent-secondary);
+    }
+    
+    .message-container p {
+      margin: 0;
+      word-break: break-word;
+      flex: 1;
+    }
+    
+    .message-container b {
+      color: var(--accent-primary);
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    
+    .encrypted-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+    
+    .decrypt-btn {
+      background: none;
+      border: none;
+      color: var(--accent-primary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: all 0.3s ease;
+      margin-left: 10px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .decrypt-btn:hover {
+      opacity: 1;
+      background-color: var(--border-color);
+      transform: scale(1.1);
+    }
+    
+    input {
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--input-bg);
+      color: var(--text-primary);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.9rem;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 10px var(--shadow-color);
+    }
+    
+    input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.6;
+    }
+    
+    #username {
+      margin-bottom: 15px;
+    }
+    
+    .input-group {
+      display: flex;
+      gap: 10px;
+    }
+    
+    #message {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    
+    button {
+      padding: 12px 25px;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+      color: var(--bg-primary);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 15px var(--shadow-color);
+    }
+    
+    button:active {
+      transform: translateY(1px);
+    }
+    
+    .status-indicator {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--accent-primary);
+      box-shadow: 0 0 10px var(--accent-primary);
+      animation: blink 2s infinite alternate;
+    }
+    
+    .tech-status {
+      position: absolute;
+      top: 20px;
+      left: 40px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent-primary);
+    }
+    
+    .glowing-effect {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: linear-gradient(120deg, 
+        transparent 0%, 
+        transparent 40%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        transparent 60%, 
+        transparent 100%);
+      background-size: 200% 100%;
+      animation: glowing 2s infinite linear;
+    }
+    
+    @keyframes glowing {
+      0% {
+        background-position: -100% 0;
+      }
+      100% {
+        background-position: 100% 0;
+      }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes blink {
+      0% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+  </style>
 </head>
 <body>
   <div class="fog-container">
     <video class="fog-video" src="../static/Images/mist.mp4" autoplay loop muted></video>
   </div>
-  <h2>Wraith Chatroom: <span id="room_code"></span></h2>
+  
+  <div class="circuit-lines"></div>
+  
+  <div class="theme-toggle" id="themeToggle">
+    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    <svg id="sunIcon" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+  </div>
+
+  <div class="status-indicator"></div>
+  <div class="tech-status">ROOM ACTIVE</div>
+  
+  <div class="header">
+    <div class="header-decoration">
+      <div class="header-line"></div>
+      <div class="header-dot"></div>
+      <div class="header-dot"></div>
+      <div class="header-line"></div>
+    </div>
+    <h2>Wraith Chat <span id="room_code"></span></h2>
+  </div>
+  
   <div class="chat-container">
     <div class="message-box" id="messages"></div>
-    <input type="text" id="username" placeholder="Enter your username">
-    <br>
-    <input type="text" id="message" placeholder="Enter message">
-    <button onclick="sendMessage()">Send</button>
+    <input type="text" id="username" placeholder="ENTER YOUR USERNAME">
+    <div class="input-group">
+      <input type="text" id="message" placeholder="ENTER MESSAGE">
+      <button onclick="sendMessage()">
+        <div class="glowing-effect"></div>
+        Send
+      </button>
+    </div>
   </div>
+
   <script>
     var socket = io.connect("http://127.0.0.1:8000");
     var room_code = "{{ room_code }}";
     document.getElementById("room_code").innerText = room_code;
-
     let encryptionKeyBase64 = null;
-
+    
     fetch(`/get_key/${room_code}`)
       .then(response => response.json())
       .then(data => {
@@ -37,17 +461,24 @@
         }
       })
       .catch(error => console.error("Error fetching key:", error));
-
+    
     socket.on("connect", function() {
       console.log("Connected to server.");
       socket.emit("join", { room_code: room_code, username: "Anonymous" });
     });
-
+    
     socket.on("message", function(data) {
       var messagesDiv = document.getElementById("messages");
       var container = document.createElement("div");
       container.className = "message-container";
+      
+      // Add system-message class if the message is from "system"
+      if (data.username.toLowerCase() === "system") {
+        container.classList.add("system-message");
+      }
+      
       container.id = data.msg_id;
+      
       var p = document.createElement("p");
       p.innerHTML = "<b>" + data.username + ":</b> <span class='encrypted-text'>" + data.message + "</span>";
       container.appendChild(p);
@@ -63,61 +494,104 @@
       }
       
       messagesDiv.appendChild(container);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to the latest message
     });
-
+    
     socket.on("delete_message", function(data) {
       let elem = document.getElementById(data.msg_id);
       if (elem) {
-        elem.remove();
+        elem.style.opacity = "0";
+        elem.style.transform = "translateX(20px)";
+        setTimeout(() => {
+          elem.remove();
+        }, 300);
       }
     });
-
+    
     function sendMessage() {
       var username = document.getElementById("username").value || "Anonymous";
       var message = document.getElementById("message").value;
+      
       if (message) {
         var msg_id = "msg_" + Math.random().toString(36).substr(2, 9);
         socket.emit("message", { room_code: room_code, username: username, message: message, msg_id: msg_id });
         document.getElementById("message").value = "";
       }
     }
-
+    
+    // Handle Enter key in message input
+    document.getElementById("message").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+    
     async function triggerDecryption(msg_id, encryptedText) {
       let decrypted = await decryptMessage(encryptedText);
       if (decrypted !== null) {
         console.log("Decrypted message:", decrypted);
-
         let messageElem = document.querySelector(`#${msg_id} .encrypted-text`);
         if (messageElem) {
-          messageElem.textContent = decrypted;
+          // Animate text change
+          messageElem.style.opacity = "0";
+          setTimeout(() => {
+            messageElem.textContent = decrypted;
+            messageElem.style.opacity = "1";
+            // Add highlight effect
+            messageElem.style.color = "var(--accent-primary)";
+            setTimeout(() => {
+              messageElem.style.color = "";
+            }, 1000);
+          }, 300);
         }
-
+        
+        // Show countdown before deletion
+        let btn = document.querySelector(`#${msg_id} .decrypt-btn`);
+        if (btn) {
+          startCountdown(btn, 10);
+        }
+        
         setTimeout(() => {
           socket.emit("delete_message", { room_code: room_code, msg_id: msg_id });
         }, 10000);
       }
     }
-
+    
+    function startCountdown(element, seconds) {
+      let remaining = seconds;
+      element.textContent = remaining;
+      
+      const countdownInterval = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(countdownInterval);
+        } else {
+          element.textContent = remaining;
+        }
+      }, 1000);
+    }
+    
     async function decryptMessage(encryptedMessage) {
       if (!encryptionKeyBase64) {
         alert("Encryption key not available.");
         return null;
       }
-
+      
       try {
         let keyBytes = forge.util.decode64(encryptionKeyBase64);
         let iv = forge.util.decode64(encryptedMessage).slice(0, 16);
         let ciphertext = forge.util.decode64(encryptedMessage).slice(16);
-
+        
         let decipher = forge.cipher.createDecipher("AES-CBC", keyBytes);
         decipher.start({ iv: forge.util.createBuffer(iv) });
         decipher.update(forge.util.createBuffer(ciphertext));
         let success = decipher.finish();
-
+        
         if (!success) {
           throw new Error("Decryption failed.");
         }
-
+        
         return decipher.output.toString("utf8").replace(/\x00+$/, "");
       } catch (err) {
         console.error("Decryption failed:", err);
@@ -125,6 +599,38 @@
         return null;
       }
     }
+    
+    // Theme toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const themeToggle = document.getElementById('themeToggle');
+      const moonIcon = document.getElementById('moonIcon');
+      const sunIcon = document.getElementById('sunIcon');
+      const htmlElement = document.documentElement;
+      
+      // Check for saved theme preference or use default
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      htmlElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+      
+      themeToggle.addEventListener('click', function() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+      });
+      
+      function updateThemeIcon(theme) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        } else {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        }
+      }
+    });
   </script>
 </body>
 </html>

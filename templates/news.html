@@ -12,35 +12,45 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
 </head>
 <body class="dark-mode">
+
+    <!-- Header Section -->
     <header>
         <div class="nav-container">
             <div class="logo">Daily News</div>
+
+            <!-- Menu Toggle Button -->
             <button class="menu-toggle" onclick="toggleMenu()">
                 <i class="fas fa-bars"></i>
             </button>
-            <nav id="nav-menu">
-                <a onclick="fetchNews('all')">World</a>
-                <a onclick="fetchNews('africa')">Africa</a>
-                <a onclick="fetchNews('americas')">Americas</a>
-                <a onclick="fetchNews('asiapac')">Asia-Pacific</a>
-                <a onclick="fetchNews('europe')">Europe</a>
-                <a onclick="fetchNews('middleeast')">Middle East</a>
-            </nav>
-            
-            <<button class="chat-btn" onclick="window.location.href='/chat'">
-                <i class="fas fa-ghost"></i> Access Encrypted Chat
-            </button>            
-    
-            <div class="tdnn" onclick="toggleDarkMode()">
-                <div class="moon"></div>
+
+            <div class="header-buttons">
+                <button class="chat-btn" onclick="window.location.href='/chat'">
+                    <i class="fas fa-ghost"></i> Chat
+                </button>
+
+                <button class="chat-btn" onclick="window.location.href='/forum'">
+                    <i class="fas fa-comments"></i> Forum
+                </button>
+
+                <div class="tdnn" onclick="toggleDarkMode()">
+                    <div class="moon"></div>
+                </div>
             </div>
         </div>
     </header>
-    
 
+    <nav class="news-nav" id="nav-menu">
+        <a onclick="fetchNews('all')">World</a>
+        <a onclick="fetchNews('africa')">Africa</a>
+        <a onclick="fetchNews('americas')">Americas</a>
+        <a onclick="fetchNews('asiapac')">Asia-Pacific</a>
+        <a onclick="fetchNews('europe')">Europe</a>
+        <a onclick="fetchNews('middleeast')">Middle East</a>
+    </nav>
+
+    <!-- Search Bar -->
     <div class="search-container">
         <input type="text" id="news-search" placeholder="Search news..." onkeyup="filterNews()">
         <img src="../static/Images/ShuffleStatic.png" 
@@ -51,20 +61,20 @@
              onclick="shuffleNews()">
     </div>
 
- 
- <!--See version 2.0 withoug jQuery-->
- <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
-
     <div class="news-container" id="news-container">
         <p>Select a category to load news.</p>
     </div>
 
     <script>
-        $('.tdnn').click(function () {
-        $(".moon").toggleClass('sun');
-        $(".tdnn").toggleClass('day');
-        });
+        function toggleMenu() {
+            document.getElementById("nav-menu").classList.toggle("active");
+        }
 
+        $('.tdnn').click(function () {
+            $(".moon").toggleClass('sun');
+            $(".tdnn").toggleClass('day');
+        });
     </script>
+
 </body>
 </html>

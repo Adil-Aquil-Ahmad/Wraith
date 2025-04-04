@@ -6,3 +6,6 @@ flask-socketio
 pycryptodome
 PyQt5
 PyQtWebEngine
+werkzeug
+gevent
+gevent-websocket

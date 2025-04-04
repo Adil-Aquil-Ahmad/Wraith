@@ -48,7 +48,8 @@
   </div>
 
   <script>
-    var socket = io.connect("http://127.0.0.1:8000");
+    // var socket = io.connect("http://127.0.0.1:8000");
+    var socket = io.connect("http://wraithint62dae2hu3xuwdj7etntsmuiw4fml37tvrqgxhzykqpf3did.onion");
     var room_code = "{{ room_code }}";
     document.getElementById("room_code").innerText = room_code;
     let encryptionKeyBase64 = null;
@@ -73,7 +74,6 @@
       var container = document.createElement("div");
       container.className = "message-container";
       
-      // Add system-message class if the message is from "system"
       if (data.username.toLowerCase() === "system") {
         container.classList.add("system-message");
       }
@@ -95,7 +95,7 @@
       }
       
       messagesDiv.appendChild(container);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to the latest message
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
     });
     
     socket.on("delete_message", function(data) {

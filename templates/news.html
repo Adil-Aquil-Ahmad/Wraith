@@ -40,28 +40,6 @@
             overflow-x: hidden;
         }
 
-        /* Fog background */
-        .fog-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-            opacity: 0.5;
-        }
-
-        .fog-video {
-            min-width: 100%;
-            min-height: 100%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            object-fit: cover;
-        }
-
         /* Header and Navigation */
         header {
             background-color: var(--bg-secondary);
@@ -359,6 +337,22 @@
             left: -150px;
         }
 
+        /* Background grid pattern */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background-image: 
+                linear-gradient(to right, var(--border-color) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--border-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.2;
+        }
+
         .status-indicator {
             position: fixed;
             top: 10px;
@@ -395,6 +389,31 @@
             }
         }
 
+        /* Tech decoration */
+        .tech-decor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .decor-circle {
+            position: absolute;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
+        .decor-line {
+            position: absolute;
+            height: 1px;
+            background-color: var(--border-color);
+            opacity: 0.3;
+        }
+
         /* Responsive Design */
         @media screen and (max-width: 768px) {
             .menu-toggle {
@@ -428,10 +447,6 @@
     </style>
 </head>
 <body>
-    <div class="fog-container">
-        <video class="fog-video" src="../static/Images/mist.mp4" autoplay loop muted></video>
-    </div>
-    
     <div class="status-indicator"></div>
     <div class="tech-status">NEWS FEED ONLINE</div>
 
@@ -463,6 +478,7 @@
     </header>
 
     <div class="circuit-lines"></div>
+    <div class="tech-decor" id="techDecor"></div>
 
     <nav class="news-nav" id="nav-menu">
         <a onclick="fetchNews('all')">World</a>
@@ -518,6 +534,41 @@
                     moonIcon.style.display = 'none';
                     sunIcon.style.display = 'block';
                 }
+            }
+            
+            // Create tech decorations
+            const techDecor = document.getElementById('techDecor');
+            
+            // Create circles
+            for (let i = 0; i < 5; i++) {
+                const circle = document.createElement('div');
+                circle.classList.add('decor-circle');
+                
+                const size = Math.floor(Math.random() * 100) + 50;
+                circle.style.width = `${size}px`;
+                circle.style.height = `${size}px`;
+                
+                circle.style.top = `${Math.floor(Math.random() * 100)}%`;
+                circle.style.left = `${Math.floor(Math.random() * 100)}%`;
+                
+                techDecor.appendChild(circle);
+            }
+            
+            // Create lines
+            for (let i = 0; i < 8; i++) {
+                const line = document.createElement('div');
+                line.classList.add('decor-line');
+                
+                const length = Math.floor(Math.random() * 100) + 50;
+                line.style.width = `${length}px`;
+                
+                line.style.top = `${Math.floor(Math.random() * 100)}%`;
+                line.style.left = `${Math.floor(Math.random() * 100)}%`;
+                
+                const angle = Math.floor(Math.random() * 360);
+                line.style.transform = `rotate(${angle}deg)`;
+                
+                techDecor.appendChild(line);
             }
         });
 

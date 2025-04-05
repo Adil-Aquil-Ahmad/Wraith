@@ -51,7 +51,7 @@
     
     <div class="options-container">
       <form id="chatroom-form" action="/chat" method="POST">
-          <input type="text" name="username" placeholder="ENTER YOUR NAME" required>
+          <!-- <input type="text" name="username" placeholder="ENTER YOUR NAME" required> -->
           <button type="submit" name="action" value="create">
               <div class="glowing-effect"></div>
               Create Chatroom
@@ -64,7 +64,7 @@
   
       <form id="join-form" action="/chat" method="POST">
           <input type="text" name="room_code" placeholder="ENTER 6-DIGIT CODE" maxlength="6" pattern="[0-9]{6}" required>
-          <input type="text" name="username" placeholder="ENTER YOUR NAME" required>
+          <!-- <input type="text" name="username" placeholder="ENTER YOUR NAME" required> -->
           <button type="submit" name="action" value="join">
               <div class="glowing-effect"></div>
               Join Chatroom

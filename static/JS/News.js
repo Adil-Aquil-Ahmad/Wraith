@@ -74,7 +74,7 @@ function filterNews() {
 }
 
 window.onload = function() {
-    fetchNews('asiapac');
+    fetchNews('all');
 };
 
 function toggleMenu() {

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }}</title>
+    <link rel="stylesheet" href="../static/CSS/Post.css">
+</head>
+<body>
+
+    <div class="content-container">
+        <h2>{{ post.title }}</h2>
+        <p>{{ post.content }}</p>
+        {% if post.image %}
+        <img src="data:image/jpeg;base64,{{ post.image }}" alt="Post Image">
+        {% endif %}
+
+
+        <h3>Comments</h3>
+        <div class="comments">
+            {% for comment in post.comments %}
+            <div class="comment">
+                <p><strong>{{ comment.user }}</strong>: {{ comment.text }}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <form action="{{ url_for('add_comment', post_id=post['_id']) }}" method="POST">
+            <textarea name="comment" placeholder="Add a comment..." required></textarea>
+            <button type="submit">Comment</button>
+        </form>
+    </div>
+
+</body>
+</html>

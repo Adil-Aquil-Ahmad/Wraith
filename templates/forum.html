@@ -3,46 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forum</title>
+    <title>Wraith Forums</title>
     <link rel="stylesheet" href="../static/CSS/Forum.css">
 </head>
 <body>
+    <div class="theme-toggle" id="themeToggle">
+        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="sunIcon" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+    </div>
+    <div class="fog-container">
+        <video class="fog-video" autoplay muted loop>
+            <source src="../static/videos/fog.mp4" type="video/mp4">
+        </video>
+    </div>
+    
+    <div class="tech-decor">
+        <div class="circuit-lines"></div>
+    </div>
+    
+    <div class="status-indicator"></div>
+    <div class="tech-status">CONNECTION SECURE
 
+        
+    </div>
+    
     <div class="content-container">
-        <h2>Tor Community Forums</h2>
-
+        <div class="header-decoration">
+            <div class="header-line"></div>
+            <div class="header-dot"></div>
+            <h2>WRAITH FORUM</h2>
+            <div class="header-dot"></div>
+            <div class="header-line"></div>
+        </div>
+        
         <div class="forum-posts">
             {% for post in posts %}
             <div class="post" onclick="window.location.href='{{ url_for('post_view', post_id=post._id) }}'">
-                <h3>{{ post.title }}</h3>
-                <p>{{ post.content[:100] }}...</p>
+                <div class="post-content">
+                    <h3>{{ post.title }}</h3>
+                    <p>{{ post.content[:100] }}...</p>
+                </div>
                 {% if post.image %}
-                <img src="data:image/jpeg;base64,{{ post.image }}" alt="Post Image">
+                <div class="post-image">
+                    <img src="data:image/jpeg;base64,{{ post.image }}" alt="Post Image">
+                </div>
                 {% endif %}
             </div>
             {% endfor %}
         </div>
     </div>
 
-    <!-- Floating Button -->
     <button id="open-popup" class="floating-btn">+</button>
 
-    <!-- Post Submission Popup -->
     <div id="popup-container" class="popup-container">
         <div class="popup">
             <span id="close-popup" class="close-btn">&times;</span>
-            <h3>Create a Post</h3>
+            <div class="header-decoration">
+                <div class="header-line"></div>
+                <h3>CREATE POST</h3>
+                <div class="header-line"></div>
+            </div>
             <form id="forum-form" action="{{ url_for('submit_post') }}" method="POST" enctype="multipart/form-data">
                 <input type="text" name="title" id="post-title" placeholder="Title" required>
                 <textarea name="content" id="post-content" placeholder="Write your post..." required></textarea>
-                <input type="file" name="image" accept="image/*">
-                <button type="submit">Post</button>
+                <div class="file-input-container">
+                    <input type="file" name="image" id="image-upload" accept="image/*">
+                    <label for="image-upload">Upload Image</label>
+                </div>
+                <button type="submit"><span class="glowing-effect"></span>POST</button>
             </form>
         </div>
     </div>
 
-    <!-- JavaScript -->
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const moonIcon = document.getElementById('moonIcon');
+            const sunIcon = document.getElementById('sunIcon');
+            const htmlElement = document.documentElement;
+            
+            // Check for saved theme preference or use default
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            htmlElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+            
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = htmlElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                htmlElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon(newTheme);
+            });
+            
+            function updateThemeIcon(theme) {
+                if (theme === 'dark') {
+                    moonIcon.style.display = 'block';
+                    sunIcon.style.display = 'none';
+                } else {
+                    moonIcon.style.display = 'none';
+                    sunIcon.style.display = 'block';
+                }
+            }
+            
+            // Create tech decorations
+            const techDecor = document.getElementById('techDecor');
+            
+            // Create circles
+            for (let i = 0; i < 5; i++) {
+                const circle = document.createElement('div');
+                circle.classList.add('decor-circle');
+                
+                const size = Math.floor(Math.random() * 100) + 50;
+                circle.style.width = `${size}px`;
+                circle.style.height = `${size}px`;
+                
+                circle.style.top = `${Math.floor(Math.random() * 100)}%`;
+                circle.style.left = `${Math.floor(Math.random() * 100)}%`;
+                
+                techDecor.appendChild(circle);
+            }
+            
+            // Create lines
+            for (let i = 0; i < 8; i++) {
+                const line = document.createElement('div');
+                line.classList.add('decor-line');
+                
+                const length = Math.floor(Math.random() * 100) + 50;
+                line.style.width = `${length}px`;
+                
+                line.style.top = `${Math.floor(Math.random() * 100)}%`;
+                line.style.left = `${Math.floor(Math.random() * 100)}%`;
+                
+                const angle = Math.floor(Math.random() * 360);
+                line.style.transform = `rotate(${angle}deg)`;
+                
+                techDecor.appendChild(line);
+            }
+        });
+
         document.addEventListener("DOMContentLoaded", function () {
             const openPopup = document.getElementById("open-popup");
             const closePopup = document.getElementById("close-popup");
@@ -68,6 +168,5 @@
             });
         });
     </script>
-
 </body>
 </html>

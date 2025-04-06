@@ -10,10 +10,16 @@ import random
 from werkzeug.utils import secure_filename
 from bson import ObjectId
 from bson import Binary
+import threading
+import subprocess
+import time
+import multiprocessing
+
+
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "AdilAAhmad"
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 client = MongoClient("mongodb://localhost:27017/")
 db = client["forum_db"]
 posts_collection = db["posts"]
@@ -165,5 +171,24 @@ def add_comment(post_id):
     except Exception:
         return "Invalid Post ID", 400
 
+def run_flask():
+    socketio.run(app, host="127.0.0.1", port=8000, debug=True, use_reloader=False)
+
+def launch_browser():
+    time.sleep(5)
+    subprocess.Popen(["python", "browser.py"])
+
 if __name__ == "__main__":
-    socketio.run(app, host="127.0.0.1", port=8000, debug=True)
+    multiprocessing.freeze_support()
+
+    tor_process = subprocess.Popen([
+        r"C:\Users\ADIL\Documents\GitHub\Wraith\tor\tor.exe",
+        "-f", r"C:\Users\ADIL\Documents\GitHub\Wraith\tor\torrc"
+    ])
+
+    time.sleep(15)
+
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.start()
+
+    launch_browser()

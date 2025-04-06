@@ -1,3 +1,5 @@
 tor/
 sources.json/
 dist/
+build/
+test.py

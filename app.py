@@ -3,7 +3,9 @@ from flask_socketio import SocketIO, join_room, emit
 from newsbot import *
 from Chatroom import *
 from Crypto.Cipher import AES
+import certifi
 from pymongo import MongoClient
+from pymongo.server_api import ServerApi
 import base64
 import os
 import random
@@ -20,9 +22,10 @@ import multiprocessing
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "AdilAAhmad"
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
-client = MongoClient("mongodb://localhost:27017/")
-db = client["forum_db"]
-posts_collection = db["posts"]
+uri = "mongodb+srv://adilaquil2005:0eZ6sWNEbWhPEWna@wraith.fgvesko.mongodb.net/?appName=Wraith"
+client = MongoClient(uri, tlsCAFile=certifi.where(), server_api=ServerApi('1'))
+db = client["Wraith"]
+posts_collection = db["forum_db"]
 
 # News Routes
 @app.route('/')
@@ -181,9 +184,32 @@ def launch_browser():
 if __name__ == "__main__":
     multiprocessing.freeze_support()
 
+    current_path = os.getcwd()
+
+    tor_folder = os.path.join(current_path, "tor")
+    data_directory = os.path.join(tor_folder, "Data")
+    hidden_service_dir = os.path.join(tor_folder, "hidden_service")
+    torrc_path = os.path.join(tor_folder, "torrc")
+    tor_path = os.path.join(current_path, "tor", "tor.exe")
+
+    os.makedirs(data_directory, exist_ok=True)
+    os.makedirs(hidden_service_dir, exist_ok=True)
+
+    torrc_content = f"""SocksPort 9050
+ControlPort 9051
+DataDirectory {data_directory}
+HiddenServiceDir {hidden_service_dir}
+HiddenServicePort 80 127.0.0.1:8000
+"""
+
+    with open(torrc_path, "w") as f:
+        f.write(torrc_content)
+
+    print(f"'torrc' created at {torrc_path}")
+
     tor_process = subprocess.Popen([
-        r"C:\Users\ADIL\Documents\GitHub\Wraith\tor\tor.exe",
-        "-f", r"C:\Users\ADIL\Documents\GitHub\Wraith\tor\torrc"
+        tor_path,
+        "-f", torrc_path
     ])
 
     time.sleep(15)

@@ -13,7 +13,7 @@
     </div>
     <div class="fog-container">
         <video class="fog-video" autoplay muted loop>
-            <source src="../static/videos/fog.mp4" type="video/mp4">
+            <source src="../static/Images/mist.mp4" type="video/mp4">
         </video>
     </div>
     
@@ -107,40 +107,7 @@
                 }
             }
             
-            // Create tech decorations
-            const techDecor = document.getElementById('techDecor');
-            
-            // Create circles
-            for (let i = 0; i < 5; i++) {
-                const circle = document.createElement('div');
-                circle.classList.add('decor-circle');
-                
-                const size = Math.floor(Math.random() * 100) + 50;
-                circle.style.width = `${size}px`;
-                circle.style.height = `${size}px`;
-                
-                circle.style.top = `${Math.floor(Math.random() * 100)}%`;
-                circle.style.left = `${Math.floor(Math.random() * 100)}%`;
-                
-                techDecor.appendChild(circle);
-            }
-            
-            // Create lines
-            for (let i = 0; i < 8; i++) {
-                const line = document.createElement('div');
-                line.classList.add('decor-line');
-                
-                const length = Math.floor(Math.random() * 100) + 50;
-                line.style.width = `${length}px`;
-                
-                line.style.top = `${Math.floor(Math.random() * 100)}%`;
-                line.style.left = `${Math.floor(Math.random() * 100)}%`;
-                
-                const angle = Math.floor(Math.random() * 360);
-                line.style.transform = `rotate(${angle}deg)`;
-                
-                techDecor.appendChild(line);
-            }
+
         });
 
         document.addEventListener("DOMContentLoaded", function () {

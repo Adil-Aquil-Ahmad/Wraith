@@ -74,7 +74,7 @@ Prabhdeep Singh – Recognized for his valuable contributions through pull reque
 GitHub: https://github.com/Adil-Aquil-Ahmad/
 
 Project Video
-(https://youtu.be/L5L7oO9yimM
+https://youtu.be/L5L7oO9yimM
 
 Technology & Languages
 Python

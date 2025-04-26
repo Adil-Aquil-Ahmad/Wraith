@@ -1,5 +1,8 @@
 tor/
 sources.json/
+__pycache__/
 dist/
 build/
 test.py
+WraithApp.exe
+Browser.exe

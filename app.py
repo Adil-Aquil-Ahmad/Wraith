@@ -34,10 +34,9 @@ client = MongoClient(uri, tlsCAFile=certifi.where(), server_api=ServerApi('1'))
 db = client["Wraith"]
 posts_collection = db["forum_db"]
 
-# Generate a unique browser authentication secret for this session
 BROWSER_SECRET = secrets.token_urlsafe(32)
 
-# News Routes
+
 @app.route('/')
 def home():
     return render_template('news.html')
@@ -66,7 +65,6 @@ def asiapac_news():
 def middleeast_news():
     return jsonify(fetch_nytimes_middleast())
 
-# Chatroom Routes
 chatrooms = {}
 
 @socketio.on("join")
@@ -101,7 +99,6 @@ def chat_home():
         if action == "create":
             room = generate_room_code()
             chatrooms[room] = os.urandom(16)
-            # Store room in session for access control
             if 'rooms' not in session:
                 session['rooms'] = []
             session['rooms'].append(room)
@@ -110,7 +107,6 @@ def chat_home():
         elif action == "join":
             room = request.form["room_code"].strip()
             if room in chatrooms:
-                # Add room to user's session
                 if 'rooms' not in session:
                     session['rooms'] = []
                 if room not in session['rooms']:
@@ -123,12 +119,10 @@ def chat_home():
 
 @app.route("/chat/<room_code>")
 def chatroom(room_code):
-    # Don't reveal if room exists - check authorization first to prevent enumeration
     if 'rooms' not in session or room_code not in session['rooms'] or room_code not in chatrooms:
         return "Access Denied", 403
     
     response = app.make_response(render_template("chatroom.html", room_code=room_code))
-    # Prevent caching of chatroom page
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, private, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
@@ -136,11 +130,9 @@ def chatroom(room_code):
 
 @app.route("/get_key/<room_code>")
 def get_key(room_code):
-    # Don't reveal if room exists - check authorization first to prevent enumeration
     if 'rooms' not in session or room_code not in session['rooms'] or room_code not in chatrooms:
         return jsonify({"error": "Access Denied"}), 403
     
-    # Check for Wraith browser authentication
     auth_token = request.headers.get('X-Wraith-Auth')
     if not auth_token or not verify_browser_auth(auth_token):
         return jsonify({"error": "Unauthorized - Wraith Browser Required"}), 403
@@ -149,9 +141,7 @@ def get_key(room_code):
     return jsonify({"key": key_b64})
 
 def verify_browser_auth(token):
-    """Verify the browser authentication token"""
     try:
-        # Token should be hash of BROWSER_SECRET + current date
         expected = hashlib.sha256((BROWSER_SECRET + time.strftime("%Y%m%d")).encode()).hexdigest()
         return token == expected
     except:
@@ -159,12 +149,9 @@ def verify_browser_auth(token):
 
 @app.route("/browser_auth")
 def get_browser_auth():
-    """Endpoint to get authentication token - only accessible via direct connection"""
-    # Generate auth token valid for current day
     token = hashlib.sha256((BROWSER_SECRET + time.strftime("%Y%m%d")).encode()).hexdigest()
     return jsonify({"token": token, "secret": BROWSER_SECRET})
 
-# Forum Routes
 @app.route("/forum")
 def forum():
     posts = list(posts_collection.find({}))
@@ -227,7 +214,6 @@ def add_comment(post_id):
 
 def launch_browser(onion_address=None):
     time.sleep(5)
-    # Use sys.executable to get the current Python interpreter (from venv)
     python_path = sys.executable
     if onion_address:
         subprocess.Popen([python_path, "browser.py", f"http://{onion_address}"])
@@ -235,12 +221,10 @@ def launch_browser(onion_address=None):
         subprocess.Popen([python_path, "browser.py"])
 
 def wait_for_tor():
-    """Wait for Tor to fully bootstrap to 100%"""
     print("Waiting for Tor to bootstrap to 100%...")
-    max_wait = 180  # Maximum wait time in seconds
+    max_wait = 180
     start_time = time.time()
     
-    # Monitor Tor's output for bootstrap completion
     while time.time() - start_time < max_wait:
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -262,7 +246,6 @@ def wait_for_tor():
     return False
 
 def monitor_tor_output(process):
-    """Monitor Tor process output in a separate thread"""
     for line in iter(process.stdout.readline, ''):
         if line:
             print(line, end='')
@@ -275,9 +258,8 @@ if __name__ == "__main__":
     current_path = os.getcwd()
     server_mgr = ServerManager(current_path)
 
-    # Ask user for server mode
     print("\n" + "="*60)
-    print("🧅  WRAITH - SERVER SELECTION")
+    print("WRAITH - SERVER SELECTION")
     print("="*60)
     print("\nChoose your connection mode:")
     print("1. Shared Server Mode - Connect to server number (1-999)")
@@ -302,7 +284,6 @@ if __name__ == "__main__":
     server_port = 8000
     
     if mode_choice == "1":
-        # Shared server mode
         print("\n" + "="*60)
         while True:
             try:
@@ -316,34 +297,29 @@ if __name__ == "__main__":
         server_port = server_mgr.get_server_port(server_num)
         hidden_service_dir = server_mgr.get_server_dir(server_num)
         
-        # Check if server is already running
         if server_mgr.is_server_running(server_num):
-            print(f"\n✓ Server {server_num} is already running!")
+            print(f"\nServer {server_num} is already running!")
             onion_address = server_mgr.get_onion_address(server_num)
             if onion_address:
-                print(f"✓ Connecting to: {onion_address}")
+                print(f"Connecting to: {onion_address}")
                 print(f"{'='*60}\n")
-                # Just launch browser to connect to existing server
                 python_path = sys.executable
                 subprocess.Popen([python_path, "browser.py", f"http://{onion_address}"])
                 sys.exit(0)
         
-        print(f"\n✓ Starting new server #{server_num}...")
+        print(f"\nStarting new server #{server_num}...")
         print(f"  Others can connect by choosing server number: {server_num}")
         
     elif mode_choice == "2":
-        # Private wraithint mode
-        print("\n✓ Using your personal wraithint address...\n")
+        print("\nUsing your personal wraithint address...\n")
         hidden_service_dir = os.path.join(current_path, "tor", "hidden_service")
         
-    else:  # mode_choice == "3"
-        # Random anonymous mode
-        print("\n✓ Generating new random anonymous address...\n")
+    else:
+        print("\nGenerating new random anonymous address...\n")
         hidden_service_dir = os.path.join(current_path, "tor", "temp_hidden_service")
         if os.path.exists(hidden_service_dir):
             shutil.rmtree(hidden_service_dir)
     
-    # Ensure hidden service directory exists with proper permissions
     os.makedirs(hidden_service_dir, exist_ok=True)
     os.chmod(hidden_service_dir, 0o700)
 
@@ -375,14 +351,13 @@ HiddenServicePort 80 127.0.0.1:{server_port}
 
     wait_for_tor()
 
-    # Display the onion address
     onion_address = None
     hostname_file = os.path.join(hidden_service_dir, "hostname")
     if os.path.exists(hostname_file):
         with open(hostname_file, 'r') as f:
             onion_address = f.read().strip()
             print(f"\n{'='*60}")
-            print(f"🧅 Your onion address: {onion_address}")
+            print(f"Your onion address: {onion_address}")
             if mode_choice == "1":
                 print(f"   Server #{server_num} - Share this number with others!")
             elif mode_choice == "2":

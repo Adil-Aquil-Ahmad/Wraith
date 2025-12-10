@@ -5,7 +5,6 @@ import re
 import json
 
 def extract_image(entry):
-    """Extracts image from an RSS entry."""
     if 'media_content' in entry:
         return entry.media_content[0]['url']
     elif 'enclosure' in entry:

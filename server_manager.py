@@ -10,25 +10,20 @@ class ServerManager:
         os.makedirs(self.servers_dir, exist_ok=True)
     
     def get_server_dir(self, server_num):
-        """Get the hidden service directory for a specific server number"""
         return os.path.join(self.servers_dir, f"server_{server_num}")
     
     def is_port_in_use(self, port):
-        """Check if a port is currently in use"""
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             return s.connect_ex(('127.0.0.1', port)) == 0
     
     def is_server_running(self, server_num):
-        """Check if a server is currently running on its port"""
-        port = 8000 + server_num  # Each server gets its own port
+        port = 8000 + server_num
         return self.is_port_in_use(port)
     
     def get_server_port(self, server_num):
-        """Get the port number for a specific server"""
         return 8000 + server_num
     
     def get_onion_address(self, server_num):
-        """Get the onion address for a server number if it exists"""
         server_dir = self.get_server_dir(server_num)
         hostname_file = os.path.join(server_dir, "hostname")
         
@@ -38,7 +33,6 @@ class ServerManager:
         return None
     
     def load_status(self):
-        """Load server status from file"""
         if os.path.exists(self.status_file):
             try:
                 with open(self.status_file, 'r') as f:
@@ -48,6 +42,5 @@ class ServerManager:
         return {}
     
     def save_status(self, status):
-        """Save server status to file"""
         with open(self.status_file, 'w') as f:
             json.dump(status, f, indent=2)

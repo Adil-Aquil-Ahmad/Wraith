@@ -43,7 +43,6 @@ class TorBrowser(QMainWindow):
         
         self.configure_tor_proxy()
         
-        # Read onion URL from command line argument or file
         if onion_url is None:
             hostname_file = os.path.join(os.getcwd(), "tor", "hidden_service", "hostname")
             if os.path.exists(hostname_file):
@@ -122,7 +121,6 @@ class TorBrowser(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     
-    # Get onion URL from command line argument if provided
     onion_url = None
     if len(sys.argv) > 1:
         onion_url = sys.argv[1]

@@ -19,7 +19,7 @@ class CustomWebEnginePage(QWebEnginePage):
 
 
 class TorBrowser(QMainWindow):
-    def __init__(self):
+    def __init__(self, onion_url=None):
         super().__init__()
         self.setWindowTitle("Wraith Browser")
         self.setGeometry(100, 100, 1024, 768)
@@ -42,7 +42,17 @@ class TorBrowser(QMainWindow):
         self.setCentralWidget(container)
         
         self.configure_tor_proxy()
-        self.add_new_tab("http://wraithint62dae2hu3xuwdj7etntsmuiw4fml37tvrqgxhzykqpf3did.onion", "Home")
+        
+        # Read onion URL from command line argument or file
+        if onion_url is None:
+            hostname_file = os.path.join(os.getcwd(), "tor", "hidden_service", "hostname")
+            if os.path.exists(hostname_file):
+                with open(hostname_file, 'r') as f:
+                    onion_url = "http://" + f.read().strip()
+            else:
+                onion_url = "http://"
+        
+        self.add_new_tab(onion_url, "Home")
 
     def configure_tor_proxy(self):
         proxy = QNetworkProxy()
@@ -111,7 +121,13 @@ class TorBrowser(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = TorBrowser()
+    
+    # Get onion URL from command line argument if provided
+    onion_url = None
+    if len(sys.argv) > 1:
+        onion_url = sys.argv[1]
+    
+    window = TorBrowser(onion_url)
     parent_window = window
     window.show()
     sys.exit(app.exec())

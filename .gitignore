@@ -1,8 +1,64 @@
+# Tor directories and hidden service keys
 tor/
-sources.json/
+tor1/
+
+# Python cache and compiled files
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+env/
+
+# Build and distribution
 dist/
 build/
-test.py
+*.egg-info/
+*.egg
+*.spec
+
+# Executables
 WraithApp.exe
 Browser.exe
+*.exe
+*.app
+*.dmg
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Flask session files
+flask_session/
+
+# Logs and databases
+*.log
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration and secrets
+sources.json/
+*.env
+.env.local
+
+# Test files
+test.py
+test_*.py
+
+# MongoDB data
+data/db/
+
+# Temporary files
+*.tmp
+*.bak
+*.cache

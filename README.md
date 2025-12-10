@@ -3,34 +3,48 @@
 Description
 Wraith is a privacy-focused, AI-inspired messaging platform that operates securely over the Tor network. It is designed to deliver fully anonymous, end-to-end encrypted communications resistant to surveillance and metadata attacks.
 
-Built using a PyQt5-based client interface and Tor as its network layer, Wraith currently uses AES encryption combined with Base64 encoding to secure messages. The next generation of Wraith focuses on improving security, eliminating vulnerabilities like server-side key storage, and transitioning toward a decentralized architecture.
+Built using a PyQt6-based client interface and Tor as its network layer, Wraith uses AES-128-CBC encryption to secure messages. The platform emphasizes security hardening with multiple layers of protection against information leakage, memory forensics, and unauthorized access.
 
 Key Features
 Advanced Encryption and Security:
 
-End-to-End Encryption (E2EE): Full encryption of messages, ensuring only sender and receiver can read them.
+End-to-End Encryption (E2EE): AES-128-CBC encryption of messages, ensuring only authorized users can read them.
 
-Ephemeral Keys: Session-based encryption keys to reduce risks from prolonged key exposure.
+Session-Based Access Control: Flask sessions track authorized chatrooms, preventing unauthorized access even with direct URLs.
 
-No Server-Side Key Storage: Keys exist only temporarily on user devices.
+Memory Protection: Decrypted messages are immediately overwritten in memory with random data, then nullified to prevent memory forensics.
+
+Browser Hardening: DevTools detection alerts users to potential inspection, cache prevention headers, disabled context menus.
+
+Console Logging Elimination: All sensitive data logging removed from browser console to prevent message exposure.
+
+Room Enumeration Prevention: Identical error responses prevent attackers from discovering which chatrooms exist on a server.
+
+Server Selection Modes:
+
+Shared Servers (1-999): Choose from 999 pre-numbered servers for community-based anonymous communication.
+
+Private Server (wraithint): Use the original persistent onion address for private, long-term chatrooms.
+
+Random Anonymous Server: Generate temporary onion addresses for maximum anonymity with ephemeral communication.
 
 Architectural Enhancements:
 
-Decentralized or Relay-Based Communication: Moves beyond the traditional client-server model for enhanced anonymity.
+Multi-Mode Tor Hidden Services: Three distinct operational modes balancing persistence and anonymity.
 
-Metadata Minimization: Structures communication and storage to resist correlation and traffic analysis attacks.
+Port-Based Server Management: Automatic port checking prevents duplicate server instances.
 
-Encrypted Local Storage: Optional encrypted storage of session logs if required.
+Session-Based Authorization: Users must explicitly join chatrooms through the interface, preventing URL-based attacks.
 
 User Interface and User Experience:
 
-PyQt5-Based Browser Interface: Modern, lightweight, and privacy-centric design.
+PyQt6-Based Browser Interface: Modern, lightweight, privacy-centric design with built-in Tor SOCKS5 proxy.
 
-Seamless Tor Configuration: Automatic setup of Tor networking for ease of use.
+Automatic Tor Bootstrap: 75-second wait ensures full Tor network connection before launching.
 
-Multi-Chatroom Support: Enables multiple secure chat sessions simultaneously.
+Multi-Chatroom Support: Secure multiple encrypted chat sessions simultaneously with per-room encryption keys.
 
-Anonymous User Authentication: Use of Tor-based credentials or Onion addresses for login.
+Server Selection Menu: Interactive mode selection at startup with clear anonymity trade-offs.
 
 Use Cases
 Private Communication:
@@ -47,16 +61,29 @@ Secure chatrooms for communities valuing digital rights, freedom of speech, and 
 
 Technical Explanation
 Encryption System:
-Messages are secured using AES encryption with Base64 encoding. During improvements, secure key exchange mechanisms such as RSA and ephemeral keys will be integrated to remove current vulnerabilities.
+Messages are secured using AES-128-CBC encryption with 16-byte per-room keys. Decryption happens client-side in the browser using forge.js, ensuring server never handles plaintext. Keys are transmitted only to authorized sessions via the /get_key endpoint with browser authentication tokens.
 
 Network Architecture:
-Initially client-server based, Wraith is being transitioned toward a decentralized (or relay-based) system using onion routing principles from Tor to maximize anonymity.
+Wraith operates as a Flask + SocketIO server behind Tor hidden services. Three operational modes provide flexibility:
+- **Shared Servers (1-999)**: Each numbered server runs on port 8000+N with dedicated hidden service directory at tor/servers/server_XXX/
+- **Private Server (wraithint)**: Original persistent onion address stored in tor/hidden_service/ for long-term private communication
+- **Random Server**: Temporary hidden service generated at tor/temp_hidden_service/, deleted after use for maximum anonymity
+
+Security Hardening:
+Multiple layers protect against information leakage:
+- **Memory Protection**: Decrypted messages overwritten with 'X'.repeat() then nullified, intermediate decryption variables cleared
+- **Console Protection**: All console.log() statements removed, console.clear() after message deletion
+- **Cache Prevention**: HTTP headers (Cache-Control, Pragma, Expires) and meta tags prevent browser caching
+- **DevTools Detection**: Monitors window size differences every 500ms to detect inspection attempts
+- **Session Authorization**: Flask sessions track authorized rooms, preventing direct URL manipulation
+- **Enumeration Prevention**: Identical 403 errors whether room exists or not, preventing chatroom discovery
+- **Context Menu Disabled**: Right-click disabled to prevent easy DOM inspection
 
 Database and Storage:
-The new version limits database use to encrypted local storage if absolutely necessary. Session logs, if stored, will be encrypted using symmetric encryption techniques.
+MongoDB stores encrypted messages with room_code indexing. Session data stored in filesystem sessions. Tor hidden service keys persist in dedicated directories based on server mode selection.
 
 User Experience:
-Built with PyQt5 and PyQtWebEngine, Wraith offers a clean, simple interface that automatically configures Tor and handles secure onboarding, enabling users to focus on private communication without technical barriers.
+PyQt6 browser automatically configures SOCKS5 proxy (127.0.0.1:9050) and accepts onion URLs via command-line arguments. The application handles full Tor bootstrap verification, launches browser with correct Python virtual environment, and provides clear server selection interface.
 
 Workflow Diagram
 https://imgur.com/a/G700nKT
@@ -79,58 +106,105 @@ https://youtu.be/L5L7oO9yimM
 Technology & Languages
 Python
 
-PyQt5 & PyQtWebEngine – GUI framework for a browser-based chat client.
+PyQt6 & PyQt6-WebEngine – GUI framework for Tor-enabled browser client.
 
-PyCryptodome – AES encryption for message security.
+PyCryptodome – AES-128-CBC encryption for message security.
 
-Feedparser – Parses RSS/Atom feeds for potential dark web monitoring.
+Feedparser – Parses RSS/Atom feeds for dark web news monitoring.
 
 Requests – Handles HTTP requests within the Tor network.
 
 BeautifulSoup4 – Extracts and processes HTML data securely.
 
-Flask – Lightweight web framework for handling chat requests.
+Flask – Lightweight web framework for handling chat requests with session management.
 
-Flask-SocketIO – Enables real-time, bidirectional communication.
+Flask-SocketIO – Enables real-time, bidirectional encrypted communication.
 
 Werkzeug – Secure WSGI toolkit for handling authentication.
 
 Gevent & Gevent-WebSocket – Optimizes WebSocket performance.
 
-Tor APIs
+Forge.js – Client-side AES-CBC decryption in browser.
 
-MongoDB
+Tor Hidden Services – Provides anonymous .onion addresses for server hosting.
 
-# How to Use
+MongoDB – Encrypted message storage with room-based indexing.
 
-Step - 1
+# How to Use (macOS)
 
-Unzip the tor folder in the current folder
+**Prerequisites:**
+- macOS (tested on Apple Silicon)
+- Homebrew installed
+- Python 3.12+ with virtual environment
+- MongoDB running locally
 
-Edit the torrc file in the tor folder:
+**Step 1 - Install Tor via Homebrew**
 
-DataDirectory C:\Users\ADIL\Documents\GitHub\Wraith\tor\
-HiddenServiceDir C:\Users\ADIL\Documents\GitHub\Wraith\tor\hidden_service
+```bash
+brew install tor
+```
 
-update these according to your current folder path 
+Tor will be installed at `/opt/homebrew/opt/tor/bin/tor` on Apple Silicon Macs.
 
-Step - 2
+**Step 2 - Configure Python Environment**
 
-Run this Command in your CMD "'folder location'\Wraith\tor\tor.exe -f 'folder location'\Wraith\tor\torrc"
+```bash
+cd /path/to/Wraith
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-for eg: C:\Users\ADIL\Documents\GitHub\Wraith\tor\tor.exe -f C:\Users\ADIL\Documents\GitHub\Wraith\tor\torrc
+**Step 3 - Run Wraith**
 
-Step - 3
+```bash
+python app.py
+```
 
-Run python app.py in your terminal
+You'll be presented with three server modes:
 
-Step - 4
+**Mode 1 - Shared Server (1-999)**
+- Enter a number between 1-999
+- Each number represents a dedicated server with unique onion address
+- Server runs on port 8000+N (e.g., server 42 uses port 8042)
+- Hidden service keys stored in `tor/servers/server_XXX/`
+- Ideal for semi-persistent community chatrooms
 
-Run python browser.py in another terminal
+**Mode 2 - Private Server (wraithint)**
+- Uses original persistent onion address
+- Hidden service keys in `tor/hidden_service/`
+- Runs on port 8000
+- Best for long-term private communication
 
-The app should run Successfully if you followed all the steps
+**Mode 3 - Random Anonymous Server**
+- Generates temporary onion address
+- Hidden service created at `tor/temp_hidden_service/`
+- Maximum anonymity, deleted after use
+- Perfect for ephemeral conversations
 
-For creating a new executable use:
+The application will:
+1. Start Tor daemon and wait for 100% bootstrap
+2. Launch PyQt6 browser with your onion address
+3. Display the .onion URL in terminal
+
+**Step 4 - Access Chatrooms**
+
+- Create or join chatrooms via the web interface
+- Share the onion URL with others (Tor Browser required for them)
+- All messages encrypted with AES-128-CBC
+- Session-based access prevents unauthorized room entry
+
+**Security Features Active:**
+✓ Console logging disabled (no decrypted messages in DevTools)
+✓ Memory wiping after message decryption
+✓ DevTools detection alerts
+✓ Cache prevention headers
+✓ Session-based room authorization
+✓ Chatroom enumeration prevention
+✓ Browser authentication tokens
+
+**For creating a new executable:**
+```bash
 pyinstaller --name WraithApp --onefile --windowed app.py
-pyinstaller WraithApp.spec
+```
 
